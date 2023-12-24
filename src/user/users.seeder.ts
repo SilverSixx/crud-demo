@@ -7,9 +7,8 @@ export class SeederService {
 
   async seedUsers() {
     const usersToSeed = [
-      { user_name: 'Employee 1', user_role: 'employee' },
-      { user_name: 'Employee 2', user_role: 'employee' },
-      { user_name: 'Admin 1', user_role: 'admin' },
+      { user_name: 'employee1', user_password: 'epass', user_role: 'employee' },
+      { user_name: 'admin1', user_password: 'apass', user_role: 'admin' },
     ];
 
     for (const userData of usersToSeed) {

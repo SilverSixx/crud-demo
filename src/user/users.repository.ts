@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { User } from './user.entity';
+import { Users } from './user.entity';
 
 @Injectable()
-export class UserRepository extends Repository<User> {
+export class UserRepository extends Repository<Users> {
   constructor(private dataSource: DataSource) {
-    super(User, dataSource.createEntityManager());
+    super(Users, dataSource.createEntityManager());
+  }
+  async isUsernameExists(user_name: string): Promise<boolean> {
+    const user = await this.findOne({ where: { user_name : user_name } });
+    return !!user;
   }
 }
