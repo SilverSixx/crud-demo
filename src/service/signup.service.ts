@@ -1,6 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import * as bcrypt from 'bcrypt';
+import { UserService } from './user.service';
 import { CreateUserDto } from 'src/dto/signup.dto';
 
 @Injectable()
@@ -18,15 +17,7 @@ export class SignupService {
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-    await this.userService.createUser({
-      user_name: createUserDto.username,
-      user_password: hashedPassword,
-      user_role: createUserDto.role
-    });
-
+    await this.userService.createUser(createUserDto);
     return { message: 'User created successfully' };
   }
 }

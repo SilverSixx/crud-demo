@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UserService } from '../service/user.service';
 
 @Injectable()
 export class SeederService {
@@ -7,8 +7,8 @@ export class SeederService {
 
   async seedUsers() {
     const usersToSeed = [
-      { user_name: 'employee1', user_password: 'epass', user_role: 'employee' },
-      { user_name: 'admin1', user_password: 'apass', user_role: 'admin' },
+      { username: 'employee1', password: 'epass', role: 'employee' },
+      { username: 'admin1', password: 'apass', role: 'admin' },
     ];
 
     for (const userData of usersToSeed) {

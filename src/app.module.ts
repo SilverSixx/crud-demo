@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from './user/user.entity';
-import { UsersController } from './user/users.controller';
-import { UserService } from './user/user.service';
-import { UserRepository } from './user/users.repository';
-import { SignupController } from './signup/signup.controller';
-import { SignupService } from './signup/signup.service';
-import { LoginController } from './login/login.controller';
-import { LoginService } from './login/login.service';
+import { Users } from './entity/user.entity';
+import { UsersController } from './controller/users.controller';
+import { UserService } from './service/user.service';
+import { UserRepository } from './repository/users.repository';
+import { SignupController } from './controller/signup.controller';
+import { SignupService } from './service/signup.service';
+import { LoginController } from './controller/login.controller';
+import { LoginService } from './service/login.service';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({

@@ -1,21 +1,66 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Users } from '../user/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    private jwtService: JwtService,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get<string[]>('roles', context.getHandler());
 
-    if (!roles) {
-      return true; 
+    if (!roles || !roles.includes('admin')) {
+      return true;
     }
 
     const request = context.switchToHttp().getRequest();
-    const user: Users = request.user;
+    const token = this.extractTokenFromRequest(request);
 
-    return user && user.user_role === 'admin';
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+
+    const tokenData = this.verifyToken(token);
+
+    if (!tokenData) {
+      throw new UnauthorizedException('Token verification failed');
+    }
+
+    const { username, role } = tokenData;
+
+    if (!username || role !== 'admin') {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    request.user = { username, role };
+
+    return true;
+  }
+
+  private extractTokenFromRequest(request: any): string | null {
+    const token = request.headers.authorization;
+    return token ? token.replace('Bearer ', '') : null;
+  }
+
+  private verifyToken(
+    token: string,
+  ): { username: string; role: string } | null {
+    try {
+      const decoded = this.jwtService.verify(token, {
+        secret: 'key',
+      });
+      return decoded as { username: string; role: string };
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return null;
+    }
   }
 }
