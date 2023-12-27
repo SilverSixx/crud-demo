@@ -24,7 +24,6 @@ export class AuthController {
   })
   @UseGuards(LocalAuthGuard)
   async login(@Request() req): Promise<DataResponse<any>> {
-
     return this.authService.login(req.user);
   }
 

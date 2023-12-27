@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EmployeeService } from '../../employee/services/employee.service';
 import { SignUpDto } from '../dto/signup.dto';
 import { DataResponse } from '../dto/data-response.dto';
-import { LoginDto } from '../dto/login.dto';
 import { Employee } from '../../employee/entities/employee.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -45,9 +44,8 @@ export class AuthService {
     return response;
   }
 
-  async validateUser(email: string, password:string): Promise<Employee | null> {
-    const e = await this.employeeService.findByEmail(email);
-    console.log(e);
+  async validateUser(username: string, password:string): Promise<Employee | null> {
+    const e = await this.employeeService.findByEmail(username);
     if (e && await bcrypt.compare(password, e.employee_password))
       return e;
     return null;

@@ -5,8 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalStrategy } from './strategies/local.strategy';
-import { EmployeeService } from '../employee/services/employee.service';
-import { EmployeeRepository } from '../employee/repo/employee.repo';
+import { EmployeeModule } from '../employee/employee.module';
 
 @Module({
   imports: [
@@ -15,9 +14,10 @@ import { EmployeeRepository } from '../employee/repo/employee.repo';
       secret: 'key',
       signOptions: { expiresIn: '1h' },
     }),
+    EmployeeModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, LocalAuthGuard, EmployeeService, EmployeeRepository],
+  providers: [AuthService, LocalStrategy, LocalAuthGuard],
   exports: [AuthService],
 })
 export class AuthModule {
