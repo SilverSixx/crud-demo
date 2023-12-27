@@ -1,14 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from './entity/user.entity';
-import { UsersController } from './controller/users.controller';
-import { UserService } from './service/user.service';
-import { UserRepository } from './repository/users.repository';
-import { SignupController } from './controller/signup.controller';
-import { SignupService } from './service/signup.service';
-import { LoginController } from './controller/login.controller';
-import { LoginService } from './service/login.service';
-import { JwtService } from '@nestjs/jwt';
+import { Employee } from './modules/employee/entities/employee.entity';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,18 +12,11 @@ import { JwtService } from '@nestjs/jwt';
       username: 'postgres',
       password: '2312',
       database: 'postgres',
-      entities: [Users],
+      entities: [Employee],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Users]),
-  ],
-  controllers: [UsersController, SignupController, LoginController],
-  providers: [
-    JwtService,
-    UserService,
-    UserRepository,
-    SignupService,
-    LoginService,
+    TypeOrmModule.forFeature([Employee]),
+    AuthModule
   ],
 })
 export class AppModule {}
