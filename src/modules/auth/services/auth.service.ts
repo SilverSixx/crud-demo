@@ -31,15 +31,10 @@ export class AuthService {
       if (emailExists) {
         throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
       }
-      response.statusCode = HttpStatus.CREATED;
-      response.isError = false;
-      response.message = 'Employee created successfully';
-      response.data = await this.employeeService.create(signUpDto);
-
+      return await this.employeeService.create(signUpDto);
     } catch (error) {
       response.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       response.isError = true;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
       response.message = error.message || 'An error occurred while signing up';
       response.data = null;
     }
@@ -48,7 +43,6 @@ export class AuthService {
 
   async validateUser(username: string, password:string): Promise<Employee | null> {
     const e = await this.employeeService.findByEmail(username);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
     if (e && await bcrypt.compare(password, e.employee_password))
       return e;
     return null;

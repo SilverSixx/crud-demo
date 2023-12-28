@@ -4,6 +4,7 @@ import { Employee } from './modules/employee/entities/employee.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { Company } from './modules/company/entities/company.entity';
 import { CompanyModule } from './modules/company/company.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { CompanyModule } from './modules/company/company.module';
     }),
     TypeOrmModule.forFeature([Employee, Company]),
     AuthModule,
-    CompanyModule
+    CompanyModule,
+    EmployeeModule
   ],
 })
 export class AppModule {}

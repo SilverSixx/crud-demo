@@ -86,7 +86,7 @@ export class CompanyService {
     return response;
   }
 
-  async update(id: number, updateCompanyDto: UpdateCompanyDto) {
+  async update(id: number, updateCompanyDto: UpdateCompanyDto): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
     try {
       const existingCompany = await this.companyRepository.findOne({
@@ -125,7 +125,7 @@ export class CompanyService {
     return response;
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
 
     try {
