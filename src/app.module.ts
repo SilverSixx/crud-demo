@@ -6,6 +6,7 @@ import { Company } from './modules/company/entities/company.entity';
 import { CompanyModule } from './modules/company/company.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -18,10 +19,10 @@ import { EmployeeModule } from './modules/employee/employee.module';
       entities: [Employee, Company],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Employee, Company]),
     AuthModule,
     CompanyModule,
-    EmployeeModule
+    EmployeeModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+}

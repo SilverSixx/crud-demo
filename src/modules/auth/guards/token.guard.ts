@@ -5,7 +5,7 @@ export class TokenGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromRequest(request);
-    return !token;
+    return !!token;
   }
 
   private extractTokenFromRequest(request: any): string | null {

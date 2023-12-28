@@ -24,25 +24,17 @@ export class AdminGuard implements CanActivate {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromRequest(request);
-
-    if (!token) {
-      throw new UnauthorizedException('Token not found');
-    }
-
     const tokenData = this.verifyToken(token);
 
     if (!tokenData) {
       throw new UnauthorizedException('Token verification failed');
     }
 
-    const { username, role } = tokenData;
+    const { email, role } = tokenData;
 
-    if (!username || role !== 'admin') {
+    if (!email || role !== 'admin') {
       throw new UnauthorizedException('Unauthorized');
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    request.user = { username, role };
 
     return true;
   }
@@ -54,14 +46,13 @@ export class AdminGuard implements CanActivate {
 
   private verifyToken(
     token: string,
-  ): { username: string; role: string } | null {
+  ): { email: string; role: string } | null {
     try {
       const decoded = this.jwtService.verify(token, {
         secret: 'key',
       });
-      return decoded as { username: string; role: string };
+      return decoded as { email: string; role: string };
     } catch (error) {
-      console.error('Token verification error:', error);
       return null;
     }
   }

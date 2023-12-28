@@ -14,9 +14,10 @@ export class EmployeeService {
     @InjectRepository(EmployeeRepository)
     private readonly employeeRepository: EmployeeRepository,
     @InjectRepository(CompanyRepository)
-    private readonly companyRepository: CompanyRepository
+    private readonly companyRepository: CompanyRepository,
   ) {
   }
+
   async create(createEmployeeDto: CreateEmployeeDto): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
     try {
@@ -38,7 +39,7 @@ export class EmployeeService {
     return response;
   }
 
-  async findAll():Promise<DataResponse<Employee[]>> {
+  async findAll(): Promise<DataResponse<Employee[]>> {
     const response = new DataResponse<Employee[]>();
     try {
       const employees = await this.employeeRepository.find();
@@ -55,10 +56,10 @@ export class EmployeeService {
     return response;
   }
 
-  async findOne(id: number):Promise<DataResponse<Employee>> {
+  async findOne(id: number): Promise<DataResponse<Employee>> {
     const response = new DataResponse<Employee>();
     try {
-      const employees = await this.employeeRepository.findOne({where: {id: id}});
+      const employees = await this.employeeRepository.findOne({ where: { id: id } });
       response.statusCode = HttpStatus.OK;
       response.isError = false;
       response.message = `Employees with ${id} retrieved successfully`;
@@ -120,14 +121,11 @@ export class EmployeeService {
     const response = new DataResponse();
 
     try {
-      // Find the existing employee by ID
-      const employeeToRemove = await this.employeeRepository.findOne({where : {id : id}});
-
+      const employeeToRemove = await this.employeeRepository.findOne({ where: { id: id } });
       if (!employeeToRemove) {
         throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
       }
 
-      // Remove the employee
       await this.employeeRepository.remove(employeeToRemove);
 
       response.statusCode = HttpStatus.OK;
@@ -147,7 +145,8 @@ export class EmployeeService {
   async isEmailExists(email: string): Promise<boolean> {
     return this.employeeRepository.isEmailExists(email);
   }
-  async findByEmail(email: string): Promise<Employee>{
+
+  async findByEmail(email: string): Promise<Employee> {
     return this.employeeRepository.findByEmail(email);
   }
 

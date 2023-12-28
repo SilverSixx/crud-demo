@@ -13,14 +13,14 @@ export class AuthService {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async login(user: Employee): Promise<DataResponse<unknown>> {
+  async login(e: Employee): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
-    const payload = { sub: user.id, email: user.employee_email };
+    const payload = { sub: e.id, email: e.employee_email, role:e.employee_role };
     const accessToken = this.jwtService.sign(payload);
     response.statusCode = HttpStatus.OK;
     response.isError = false;
     response.message = 'Employee login successfully';
-    response.data = {access_token: accessToken};
+    response.data = { access_token: accessToken };
     return response;
   }
 
@@ -41,7 +41,7 @@ export class AuthService {
     return response;
   }
 
-  async validateUser(username: string, password:string): Promise<Employee | null> {
+  async validateUser(username: string, password: string): Promise<Employee | null> {
     const e = await this.employeeService.findByEmail(username);
     if (e && await bcrypt.compare(password, e.employee_password))
       return e;
