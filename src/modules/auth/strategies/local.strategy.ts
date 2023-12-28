@@ -6,9 +6,10 @@ import { AuthService } from '../services/auth.service';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super();
   }
-  async validate(username: string, password: string): Promise<any> {
+  async validate(username: string, password: string): Promise<unknown> {
     const e = await this.authService.validateUser(username, password);
     if (!e) {
       throw new UnauthorizedException();

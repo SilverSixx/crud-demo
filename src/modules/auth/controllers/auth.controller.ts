@@ -23,7 +23,8 @@ export class AuthController {
     type: String,
   })
   @UseGuards(LocalAuthGuard)
-  async login(@Request() req): Promise<DataResponse<any>> {
+  async login(@Request() req): Promise<DataResponse<unknown>> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.authService.login(req.user);
   }
 
@@ -40,7 +41,7 @@ export class AuthController {
   })
   async signup(
     @Body() signUpDto: SignUpDto,
-  ): Promise<DataResponse<any>> {
+  ): Promise<DataResponse<unknown>> {
     return this.authService.signup(signUpDto);
   }
 }

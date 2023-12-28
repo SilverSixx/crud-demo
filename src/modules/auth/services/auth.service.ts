@@ -12,7 +12,8 @@ export class AuthService {
               private readonly jwtService: JwtService) {
   }
 
-  async login(user: Employee): Promise<DataResponse<any>> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async login(user: Employee): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
     const payload = { sub: user.id, email: user.employee_email };
     const accessToken = this.jwtService.sign(payload);
@@ -23,7 +24,7 @@ export class AuthService {
     return response;
   }
 
-  async signup(signUpDto: SignUpDto): Promise<DataResponse<any>> {
+  async signup(signUpDto: SignUpDto): Promise<DataResponse<unknown>> {
     const response = new DataResponse();
     try {
       const emailExists = await this.employeeService.isEmailExists(signUpDto.email);
@@ -38,7 +39,8 @@ export class AuthService {
     } catch (error) {
       response.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       response.isError = true;
-      response.message = error.message || 'An error occurred';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+      response.message = error.message || 'An error occurred while signing up';
       response.data = null;
     }
     return response;
@@ -46,6 +48,7 @@ export class AuthService {
 
   async validateUser(username: string, password:string): Promise<Employee | null> {
     const e = await this.employeeService.findByEmail(username);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
     if (e && await bcrypt.compare(password, e.employee_password))
       return e;
     return null;

@@ -13,7 +13,6 @@ export class EmployeeService {
     private readonly employeeRepository: EmployeeRepository,
   ) {
   }
-
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     const newEmployee = new Employee();
     newEmployee.employee_name = createEmployeeDto.name;

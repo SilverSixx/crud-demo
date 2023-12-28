@@ -21,6 +21,7 @@ export class AdminGuard implements CanActivate {
       return true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromRequest(request);
 
@@ -40,6 +41,7 @@ export class AdminGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     request.user = { username, role };
 
     return true;

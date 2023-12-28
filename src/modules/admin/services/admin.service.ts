@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAdminDto } from '../dto/create-admin.dto';
 import { UpdateAdminDto } from '../dto/update-admin.dto';
+import { CompanyService } from '../../company/services/company.service';
 
 @Injectable()
 export class AdminService {
+  constructor(private readonly companyService: CompanyService) {
+  }
+
   create(createAdminDto: CreateAdminDto) {
     return 'This action adds a new admin';
   }
