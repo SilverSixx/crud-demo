@@ -49,7 +49,7 @@ export class AdminGuard implements CanActivate {
   ): { email: string; role: string } | null {
     try {
       const decoded = this.jwtService.verify(token, {
-        secret: 'key',
+        secret: 'seriously',
       });
       return decoded as { email: string; role: string };
     } catch (error) {

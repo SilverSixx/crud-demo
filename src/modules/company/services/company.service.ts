@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from '../dto/create-company.dto';
 import { UpdateCompanyDto } from '../dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,8 @@ import { CompanyRepository } from '../repos/company.repo';
 import { Company } from '../entities/company.entity';
 import { EmployeeRepository } from '../../employee/repo/employee.repo';
 import { In } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CompanyService {
@@ -14,8 +16,9 @@ export class CompanyService {
     private readonly companyRepository: CompanyRepository,
     @InjectRepository(EmployeeRepository)
     private readonly employeeRepository: EmployeeRepository,
-  ) {
-  }
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+  ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<object> {
     try {
@@ -23,7 +26,10 @@ export class CompanyService {
         where: { id: In(createCompanyDto.employee_ids) },
       });
       if (employees.length !== createCompanyDto.employee_ids.length) {
-        throw new HttpException('One or more employee IDs not found in the database.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'One or more employee IDs not found in the database.',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       const newCompany = new Company();
       newCompany.name = createCompanyDto.company_name;
@@ -35,35 +41,51 @@ export class CompanyService {
     }
   }
 
-  async findAll(): Promise<object[]> {
+  async findAll(): Promise<unknown> {
     try {
-      return await this.companyRepository.find({
-        relations: ['employees'],
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-  async findOne(id: number): Promise<object> {
-    try {
-      const company = await this.companyRepository.findOne({
-        where: { id: id },
-        relations: ['employees'],
-      });
-      if (!company) {
-        throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
+      console.log('this should be logged once');
+      const cacheKey = 'all_companies';
+      let cachedData = await this.cacheManager.get(cacheKey);
+      if (!cachedData) {
+        const companies = await this.companyRepository.find({
+          relations: ['employees'],
+        });
+        await this.cacheManager.set(cacheKey, companies);
+        return companies;
       }
-      return company;
+      return cachedData;
     } catch (error) {
       console.error(error);
       throw error;
     }
-  
   }
 
-  async update(id: number, updateCompanyDto: UpdateCompanyDto): Promise<object> {
+  async findOne(id: number): Promise<unknown> {
+    try {
+      const cacheKey = `company_${id}`;
+      let cachedCompany = await this.cacheManager.get(cacheKey);
+      if (!cachedCompany) {
+        const company = await this.companyRepository.findOne({
+          where: { id: id },
+          relations: ['employees'],
+        });
+        if (!company) {
+          throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
+        }
+        await this.cacheManager.set(cacheKey, company);
+        cachedCompany = company;
+      }
+      return cachedCompany;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async update(
+    id: number,
+    updateCompanyDto: UpdateCompanyDto,
+  ): Promise<object> {
     try {
       const existingCompany = await this.companyRepository.findOne({
         where: { id: id },
@@ -79,14 +101,25 @@ export class CompanyService {
       });
 
       if (employees.length !== updateCompanyDto.employee_ids.length) {
-        throw new HttpException('One or more employee IDs not found in the database.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'One or more employee IDs not found in the database.',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       existingCompany.name = updateCompanyDto.company_name;
       existingCompany.employees = employees;
 
-      return await this.companyRepository.save(existingCompany);
+      const updatedCompany = await this.companyRepository.save(existingCompany);
 
+      // invalidate the cache (if exists)
+      const cacheKey = `company_${id}`;
+      const isCacheEntryExists = await this.cacheManager.get(cacheKey);
+      if (isCacheEntryExists) {
+        await this.cacheManager.del(cacheKey);
+      }
+
+      return updatedCompany;
     } catch (error) {
       console.error(error);
       throw error;
@@ -109,7 +142,15 @@ export class CompanyService {
           await this.employeeRepository.remove(employee);
         }
       }
-      return await this.companyRepository.remove(companyToRemove);
+      const delCompany = await this.companyRepository.remove(companyToRemove);
+
+      const cacheKey = `company_${id}`;
+      const isCacheEntryExists = await this.cacheManager.get(cacheKey);
+      if (isCacheEntryExists) {
+        await this.cacheManager.del(cacheKey);
+      }
+
+      return delCompany;
     } catch (error) {
       console.error(error);
       throw error;

@@ -29,6 +29,7 @@ export class AuthController {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const access_token = await this.authService.login(req.user);
+      // handle response for admin login
       return ResponseHelper.success(
         access_token,
         'Employee login successfully',
