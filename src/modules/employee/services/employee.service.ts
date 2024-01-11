@@ -18,6 +18,14 @@ export class EmployeeService {
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<object> {
     try {
+      const employee = await this.findByEmail(createEmployeeDto.email);
+
+      if (employee) {
+        throw new HttpException(
+          'Employee email exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const newEmployee = new Employee();
       newEmployee.employee_name = createEmployeeDto.name;
       newEmployee.employee_email = createEmployeeDto.email;
@@ -35,7 +43,9 @@ export class EmployeeService {
 
   async findAll(): Promise<object[]> {
     try {
-      return await this.employeeRepository.find();
+      return await this.employeeRepository
+        .createQueryBuilder('employee')
+        .getMany();
     } catch (error) {
       console.error(error);
       throw error;
@@ -44,9 +54,10 @@ export class EmployeeService {
 
   async findOne(id: number): Promise<object> {
     try {
-      return await this.employeeRepository.findOne({
-        where: { id: id },
-      });
+      return await this.employeeRepository
+        .createQueryBuilder('employee')
+        .where('employee.id = :id', { id })
+        .getOne();
     } catch (error) {
       console.error(error);
       throw error;
@@ -58,10 +69,11 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<object> {
     try {
-      const existingEmployee = await this.employeeRepository.findOne({
-        where: { id: id },
-        relations: ['company'],
-      });
+      const existingEmployee = await this.employeeRepository
+        .createQueryBuilder('employee')
+        .leftJoinAndSelect('employee.company', 'company')
+        .where('employee.id = :id', { id })
+        .getOne();
 
       if (!existingEmployee) {
         throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
@@ -78,10 +90,11 @@ export class EmployeeService {
         await this.employeeRepository.save(existingEmployee);
 
       if (updateEmployeeDto.company_id) {
-        const updatedCompany = await this.companyRepository.findOne({
-          where: { id: updateEmployeeDto.company_id },
-          relations: ['employees'],
-        });
+        const updatedCompany = await this.companyRepository
+          .createQueryBuilder('company')
+          .leftJoinAndSelect('company.employees', 'employees')
+          .where('company.id = :id', { id: updateEmployeeDto.company_id })
+          .getOne();
 
         if (!updatedCompany) {
           throw new HttpException('Company not found', HttpStatus.BAD_REQUEST);
@@ -97,9 +110,10 @@ export class EmployeeService {
 
   async remove(id: number): Promise<object> {
     try {
-      const employeeToRemove = await this.employeeRepository.findOne({
-        where: { id: id },
-      });
+      const employeeToRemove = await this.employeeRepository
+        .createQueryBuilder('employee')
+        .where('employee.id = :id', { id })
+        .getOne();
       if (!employeeToRemove) {
         throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
       }
@@ -112,10 +126,17 @@ export class EmployeeService {
   }
 
   async isEmailExists(email: string): Promise<boolean> {
-    return this.employeeRepository.isEmailExists(email);
+    const result = await this.employeeRepository
+      .createQueryBuilder('employee')
+      .where('employee.employee_email = :email', { email })
+      .getOne();
+    return !!result;
   }
 
   async findByEmail(email: string): Promise<Employee> {
-    return this.employeeRepository.findByEmail(email);
+    return this.employeeRepository
+      .createQueryBuilder('employee')
+      .where('employee.employee_email = :email', { email })
+      .getOne();
   }
 }

@@ -2,27 +2,26 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 import { CompanyService } from '../services/company.service';
 import { CreateCompanyDto } from '../dto/create-company.dto';
 import { UpdateCompanyDto } from '../dto/update-company.dto';
-import { AdminGuard } from '../../auth/guards/admin.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { TokenGuard } from '../../auth/guards/token.guard';
 import { ResponseHelper, DataResponse } from '../helper/data-response.helper';
+import { Role } from '../../auth/enums/role.enum';
+import { Public } from 'src/modules/auth/guards/is-public.decorator';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 
 @Controller('company')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  @Roles('admin')
-  @UseGuards(TokenGuard, AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async create(
     @Body() createCompanyDto: CreateCompanyDto,
   ): Promise<DataResponse<unknown>> {
     try {
       const company = await this.companyService.create(createCompanyDto);
-      return ResponseHelper.success(
-        company,
-        'Company created successfully',
-      );
+      return ResponseHelper.success(company, 'Company created successfully');
     } catch (error) {
       return ResponseHelper.error(
         error instanceof HttpException ? error.getStatus() : 500,
@@ -33,11 +32,14 @@ export class CompanyController {
   }
 
   @Get()
-  @UseGuards(TokenGuard)
+  @Public()
   async findAll(): Promise<DataResponse<unknown>> {
     try {
       const companies = await this.companyService.findAll();
-      return ResponseHelper.success(companies, 'Companies fetched successfully');
+      return ResponseHelper.success(
+        companies,
+        'Companies fetched successfully',
+      );
     } catch (error) {
       return ResponseHelper.error(
         error instanceof HttpException ? error.getStatus() : 500,
@@ -48,7 +50,7 @@ export class CompanyController {
   }
 
   @Get(':id')
-  @UseGuards(TokenGuard)
+  @Public()
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<DataResponse<unknown>> {
@@ -65,8 +67,8 @@ export class CompanyController {
   }
 
   @Patch(':id')
-  @Roles('admin')
-  @UseGuards(TokenGuard,AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async update(
     @Param('id') id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
@@ -84,8 +86,8 @@ export class CompanyController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(TokenGuard, AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async remove(@Param('id') id: string): Promise<DataResponse<unknown>> {
     try {
       const company = await this.companyService.remove(+id);

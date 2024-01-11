@@ -7,13 +7,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { EmployeeRepository } from '../employee/repo/employee.repo';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Company]),
     // using redis 3.x.x
-    CacheModule.register(),
+    CacheModule.register({
+      ttl:6000
+    }),
   ],
   controllers: [CompanyController],
   providers: [
@@ -21,11 +24,9 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     CompanyRepository,
     JwtService,
     EmployeeRepository,
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CacheInterceptor,
-    // },
+    ConfigService,
+    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor },
   ],
   exports: [CompanyService],
 })
-export class CompanyModule  {}
+export class CompanyModule {}

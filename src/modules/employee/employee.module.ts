@@ -6,11 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmployeeRepository } from './repo/employee.repo';
 import { JwtService } from '@nestjs/jwt';
 import { CompanyRepository } from '../company/repos/company.repo';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Employee])],
   controllers: [EmployeeController],
-  providers: [EmployeeService, EmployeeRepository, JwtService, CompanyRepository],
+  providers: [EmployeeService, EmployeeRepository, JwtService, CompanyRepository, ConfigService],
   exports: [EmployeeService],
 })
 export class EmployeeModule {

@@ -7,6 +7,7 @@ import { CompanyModule } from './modules/company/company.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -25,10 +26,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
-    ConfigModule.forRoot(),
     AuthModule,
     CompanyModule,
     EmployeeModule,
   ],
+
 })
 export class AppModule {}

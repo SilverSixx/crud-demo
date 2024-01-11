@@ -14,17 +14,18 @@ import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { DataResponse, ResponseHelper } from '../helper/data-response.helper';
 import { UpdateEmployeeDto } from '../dto/update-employee.dto';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { AdminGuard } from '../../auth/guards/admin.guard';
-import { TokenGuard } from '../../auth/guards/token.guard';
+import { Role } from '../../auth/enums/role.enum';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
+import { Public } from 'src/modules/auth/guards/is-public.decorator';
 
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
-  @Roles('admin')
-  @UseGuards(TokenGuard)
-  @UseGuards(AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
   ): Promise<DataResponse<unknown>> {
@@ -41,11 +42,14 @@ export class EmployeeController {
   }
 
   @Get()
-  @UseGuards(TokenGuard)
+  @Public()
   async findAll(): Promise<DataResponse<unknown>> {
     try {
       const employees = await this.employeeService.findAll();
-      return ResponseHelper.success(employees, 'Employees fetched successfully');
+      return ResponseHelper.success(
+        employees,
+        'Employees fetched successfully',
+      );
     } catch (error) {
       return ResponseHelper.error(
         error instanceof HttpException ? error.getStatus() : 500,
@@ -56,7 +60,7 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  @UseGuards(TokenGuard)
+  @Public()
   async findOne(@Param('id') id: string): Promise<DataResponse<unknown>> {
     try {
       const employee = await this.employeeService.findOne(+id);
@@ -71,9 +75,8 @@ export class EmployeeController {
   }
 
   @Patch(':id')
-  @Roles('admin')
-  @UseGuards(TokenGuard)
-  @UseGuards(AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async update(
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
@@ -94,9 +97,8 @@ export class EmployeeController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(TokenGuard)
-  @UseGuards(AdminGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   async remove(@Param('id') id: string): Promise<DataResponse<unknown>> {
     try {
       const employee = await this.employeeService.remove(+id);

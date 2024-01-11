@@ -22,9 +22,12 @@ export class CompanyService {
 
   async create(createCompanyDto: CreateCompanyDto): Promise<object> {
     try {
-      const employees = await this.employeeRepository.find({
-        where: { id: In(createCompanyDto.employee_ids) },
-      });
+      const employees = await this.employeeRepository
+        .createQueryBuilder('employee')
+        .where('employee.id IN (:...ids)', {
+          ids: createCompanyDto.employee_ids,
+        })
+        .getMany();
       if (employees.length !== createCompanyDto.employee_ids.length) {
         throw new HttpException(
           'One or more employee IDs not found in the database.',
@@ -43,13 +46,14 @@ export class CompanyService {
 
   async findAll(): Promise<unknown> {
     try {
-      console.log('this should be logged once');
+      console.log('this should be logged once when turn on the CacheInterceptor');
       const cacheKey = 'all_companies';
       let cachedData = await this.cacheManager.get(cacheKey);
       if (!cachedData) {
-        const companies = await this.companyRepository.find({
-          relations: ['employees'],
-        });
+        const companies = await this.companyRepository
+          .createQueryBuilder('company')
+          .leftJoinAndSelect('company.employees', 'employee')
+          .getMany();
         await this.cacheManager.set(cacheKey, companies);
         return companies;
       }
@@ -65,10 +69,11 @@ export class CompanyService {
       const cacheKey = `company_${id}`;
       let cachedCompany = await this.cacheManager.get(cacheKey);
       if (!cachedCompany) {
-        const company = await this.companyRepository.findOne({
-          where: { id: id },
-          relations: ['employees'],
-        });
+        const company = await this.companyRepository
+          .createQueryBuilder('company')
+          .leftJoinAndSelect('company.employees', 'employee')
+          .where('company.id = :id', { id })
+          .getOne();
         if (!company) {
           throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
         }
@@ -87,18 +92,22 @@ export class CompanyService {
     updateCompanyDto: UpdateCompanyDto,
   ): Promise<object> {
     try {
-      const existingCompany = await this.companyRepository.findOne({
-        where: { id: id },
-        relations: ['employees'],
-      });
+      const existingCompany = await this.companyRepository
+        .createQueryBuilder('company')
+        .leftJoinAndSelect('company.employees', 'employee')
+        .where('company.id = :id', { id })
+        .getOne();
 
       if (!existingCompany) {
         throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
       }
 
-      const employees = await this.employeeRepository.find({
-        where: { id: In(updateCompanyDto.employee_ids) },
-      });
+      const employees = await this.employeeRepository
+        .createQueryBuilder('employee')
+        .where('employee.id IN (:...ids)', {
+          ids: updateCompanyDto.employee_ids,
+        })
+        .getMany();
 
       if (employees.length !== updateCompanyDto.employee_ids.length) {
         throw new HttpException(
@@ -128,10 +137,11 @@ export class CompanyService {
 
   async remove(id: number): Promise<object> {
     try {
-      const companyToRemove = await this.companyRepository.findOne({
-        where: { id: id },
-        relations: ['employees'],
-      });
+      const companyToRemove = await this.companyRepository
+        .createQueryBuilder('company')
+        .leftJoinAndSelect('company.employees', 'employee')
+        .where('company.id = :id', { id })
+        .getOne();
 
       if (!companyToRemove) {
         throw new HttpException('Company not found', HttpStatus.NOT_FOUND);

@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     forwardRef(() => EmployeeModule),
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
+      global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),

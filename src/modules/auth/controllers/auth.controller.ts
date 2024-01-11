@@ -24,11 +24,11 @@ export class AuthController {
     type: String,
   })
   @UseGuards(LocalAuthGuard)
-  async login(@Request() req): Promise<DataResponse<unknown>> {
+  async signin(@Request() req): Promise<DataResponse<unknown>> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      const access_token = await this.authService.login(req.user);
+      const access_token = await this.authService.signin(req.user);
       // handle response for admin login
       return ResponseHelper.success(
         access_token,
