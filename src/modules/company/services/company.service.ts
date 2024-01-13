@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyRepository } from '../repos/company.repo';
 import { Company } from '../entities/company.entity';
 import { EmployeeRepository } from '../../employee/repo/employee.repo';
-import { In } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -54,6 +53,8 @@ export class CompanyService {
           .createQueryBuilder('company')
           .leftJoinAndSelect('company.employees', 'employee')
           .getMany();
+          console.log(companies);
+          
         await this.cacheManager.set(cacheKey, companies);
         return companies;
       }
