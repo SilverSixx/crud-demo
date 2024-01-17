@@ -8,7 +8,7 @@ export class Company {
 
   @Column()
   name: string;
-
+  
   @OneToMany(() => Employee, employee => employee.company)
   employees: Employee[];
 }

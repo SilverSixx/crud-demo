@@ -18,11 +18,30 @@ import { Role } from '../../auth/enums/role.enum';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { Public } from 'src/modules/auth/guards/is-public.decorator';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 
+@ApiTags('employee')
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
+  @ApiOperation({ summary: 'Create new employee' })
+  @ApiBody({
+    type: CreateEmployeeDto,
+    description: 'Needed infos to create a new employee',
+  })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Return a standard json message object that shows successful creation of the company',
+    type: DataResponse<unknown>,
+  })
   @Post()
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
@@ -41,6 +60,15 @@ export class EmployeeController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Fetch all employees',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Return a standard json message object that shows successful fetch of the employees',
+    type: DataResponse<unknown>,
+  })
   @Get()
   @Public()
   async findAll(): Promise<DataResponse<unknown>> {
@@ -59,6 +87,20 @@ export class EmployeeController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Fetch 1 specific employee',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the employee to fetch',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Return a standard json message object that shows successful fetch of the employee',
+    type: DataResponse<unknown>,
+  })
   @Get(':id')
   @Public()
   async findOne(@Param('id') id: string): Promise<DataResponse<unknown>> {
@@ -74,6 +116,22 @@ export class EmployeeController {
     }
   }
 
+  @ApiOperation({ summary: 'Update employee' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the employee to update',
+    type: Number,
+  })
+  @ApiBody({
+    type: UpdateEmployeeDto,
+    description: 'Needed infos to update an employee',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Return a standard json message object that shows successful update of the employee',
+    type: DataResponse<unknown>,
+  })
   @Patch(':id')
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
@@ -96,6 +154,18 @@ export class EmployeeController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete employee' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the employee to delete',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+    'Return a standard json message object that shows successful deletion of the employee',
+    type: DataResponse<unknown>,
+  })
   @Delete(':id')
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
