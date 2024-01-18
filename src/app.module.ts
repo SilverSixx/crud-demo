@@ -6,6 +6,7 @@ import { Company } from './modules/company/entities/company.entity';
 import { CompanyModule } from './modules/company/company.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SearchModule } from './modules/search/search.module';
 
 
 @Module({
@@ -29,6 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AuthModule,
     CompanyModule,
     EmployeeModule,
+    SearchModule,
   ],
 
 })

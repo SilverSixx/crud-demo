@@ -10,9 +10,11 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import * as redisStore from 'cache-manager-redis-store';
+import { SearchModule } from '../search/search.module';
 
 @Module({
   imports: [
+    SearchModule,
     TypeOrmModule.forFeature([Company]),
     // using redis 3.x.x
     CacheModule.register({
