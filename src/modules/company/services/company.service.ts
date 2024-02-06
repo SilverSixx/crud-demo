@@ -45,19 +45,18 @@ export class CompanyService {
 
   async findAll(): Promise<unknown> {
     try {
-      console.log('this should be logged once when turn on the CacheInterceptor');
+      console.log(
+        'this should be logged once when turn on the CacheInterceptor',
+      );
       const cacheKey = 'all_companies';
       let cachedData = await this.cacheManager.get(cacheKey);
-      if (!cachedData) {
-        const companies = await this.companyRepository
-          .createQueryBuilder('company')
-          .leftJoinAndSelect('company.employees', 'employee')
-          .getMany();
-          console.log(companies);
-          
-        await this.cacheManager.set(cacheKey, companies);
-        return companies;
-      }
+      if (cachedData) return cachedData;
+      const companies = await this.companyRepository
+        .createQueryBuilder('company')
+        .leftJoinAndSelect('company.employees', 'employee')
+        .getMany();
+      await this.cacheManager.set(cacheKey, companies);
+      cachedData = companies;
       return cachedData;
     } catch (error) {
       console.error(error);
@@ -69,18 +68,17 @@ export class CompanyService {
     try {
       const cacheKey = `company_${id}`;
       let cachedCompany = await this.cacheManager.get(cacheKey);
-      if (!cachedCompany) {
-        const company = await this.companyRepository
-          .createQueryBuilder('company')
-          .leftJoinAndSelect('company.employees', 'employee')
-          .where('company.id = :id', { id })
-          .getOne();
-        if (!company) {
-          throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
-        }
-        await this.cacheManager.set(cacheKey, company);
-        cachedCompany = company;
+      if (cachedCompany) return cachedCompany;
+      const company = await this.companyRepository
+        .createQueryBuilder('company')
+        .leftJoinAndSelect('company.employees', 'employee')
+        .where('company.id = :id', { id })
+        .getOne();
+      if (!company) {
+        throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
       }
+      await this.cacheManager.set(cacheKey, company);
+      cachedCompany = company;
       return cachedCompany;
     } catch (error) {
       console.error(error);

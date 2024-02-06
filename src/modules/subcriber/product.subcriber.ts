@@ -1,0 +1,32 @@
+import {
+  Connection,
+  EntitySubscriberInterface,
+  InsertEvent,
+  UpdateEvent,
+} from 'typeorm';
+import { Product } from '../product/entities/product.entity';
+import { ProductElasticIndex } from '..//search/product.elastic.index';
+import { InjectConnection } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class PostSubscriber implements EntitySubscriberInterface<Product> {
+  constructor(
+    @InjectConnection() readonly connection: Connection,
+    private readonly productEsIndex: ProductElasticIndex,
+  ) {
+    connection.subscribers.push(this);
+  }
+
+  public listenTo(): any {
+    return Product;
+  }
+
+  public async afterInsert(event: InsertEvent<Product>): Promise<any> {
+    return await this.productEsIndex.insertProductDocument(event.entity);
+  }
+
+  public async afterUpdate(event: UpdateEvent<Product>): Promise<any> {
+    return await this.productEsIndex.updateProductDocument(event.entity as Product);
+  }
+}

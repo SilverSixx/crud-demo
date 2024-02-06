@@ -5,6 +5,7 @@ import { CreateCompanyDto } from '../dto/create-company.dto';
 import { UpdateCompanyDto } from '../dto/update-company.dto';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { ResponseHelper, DataResponse } from '../helper/data-response.helper';
+import { HttpExceptionHandler } from '../helper/ex-response.handler';
 import { Role } from '../../auth/enums/role.enum';
 import { Public } from 'src/modules/auth/guards/is-public.decorator';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
@@ -36,11 +37,7 @@ export class CompanyController {
       const company = await this.companyService.create(createCompanyDto);
       return ResponseHelper.success(company, 'Company created successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -63,11 +60,7 @@ export class CompanyController {
         'Companies fetched successfully',
       );
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -94,11 +87,7 @@ export class CompanyController {
       const company = await this.companyService.findOne(+id);
       return ResponseHelper.success(company, 'Company fetched successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -129,11 +118,7 @@ export class CompanyController {
       const company = await this.companyService.update(+id, updateCompanyDto);
       return ResponseHelper.success(company, 'Company updated successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -157,11 +142,7 @@ export class CompanyController {
       const company = await this.companyService.remove(+id);
       return ResponseHelper.success(company, 'Company deleted successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 }

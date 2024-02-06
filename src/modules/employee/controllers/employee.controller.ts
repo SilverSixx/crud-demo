@@ -12,6 +12,7 @@ import {
 import { EmployeeService } from '../services/employee.service';
 import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { DataResponse, ResponseHelper } from '../helper/data-response.helper';
+import { HttpExceptionHandler } from '../helper/ex-response.handler';
 import { UpdateEmployeeDto } from '../dto/update-employee.dto';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/enums/role.enum';
@@ -52,11 +53,7 @@ export class EmployeeController {
       const employee = await this.employeeService.create(createEmployeeDto);
       return ResponseHelper.success(employee, 'Employee created successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -79,11 +76,7 @@ export class EmployeeController {
         'Employees fetched successfully',
       );
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -108,11 +101,7 @@ export class EmployeeController {
       const employee = await this.employeeService.findOne(+id);
       return ResponseHelper.success(employee, 'Employee fetched successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -146,11 +135,7 @@ export class EmployeeController {
       );
       return ResponseHelper.success(employee, 'Employee updated successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 
@@ -174,11 +159,7 @@ export class EmployeeController {
       const employee = await this.employeeService.remove(+id);
       return ResponseHelper.success(employee, 'Employee removed successfully');
     } catch (error) {
-      return ResponseHelper.error(
-        error instanceof HttpException ? error.getStatus() : 500,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        error.message || 'Internal Server Error',
-      );
+      return HttpExceptionHandler.handle(error);
     }
   }
 }
