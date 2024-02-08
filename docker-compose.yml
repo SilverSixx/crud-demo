@@ -1,9 +1,14 @@
-version: '3'
+version: '3.8'
+
 services:
   db:
     image: postgres:latest
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 2312
+      POSTGRES_DB: 'postgres'
+    volumes:
+      - db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
   redis:
@@ -15,7 +20,9 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
     environment:
-      - discovery.type=single-node
+      discovery.type: 'single-node'
+      ELASTICSEARCH_USER: 'elastic'
+      ELASTICSEARCH_PASSWORD: 'bdl6t5q-fNscEgYVe5rl'
     ports:
       - '9200:9200'
     volumes:
@@ -26,5 +33,5 @@ volumes:
     driver: local
   esdata:
     driver: local
-  db: 
+  db:
     driver: local

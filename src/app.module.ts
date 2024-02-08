@@ -7,7 +7,7 @@ import { CompanyModule } from './modules/company/company.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchModule } from './modules/search/search.module';
-
+import { Product } from './modules/product/product.entity';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { SearchModule } from './modules/search/search.module';
         username: configService.get<string>('POSTGRES_USERNAME'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DATABASE'),
-        entities: [Employee, Company],
+        entities: [Employee, Company, Product],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -32,6 +32,5 @@ import { SearchModule } from './modules/search/search.module';
     EmployeeModule,
     SearchModule,
   ],
-
 })
 export class AppModule {}

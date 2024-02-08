@@ -1,28 +1,24 @@
-import { Module, OnModuleInit } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { SearchService } from './search.service';
+import { ProductController } from '../product/product.controller';
+import { ProductService } from '../product/product.service';
+import { Product } from '../product/product.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    ConfigModule,
+    TypeOrmModule.forFeature([Product]),
     ElasticsearchModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        node: configService.get<string>('ELASTIC_NODE'),
-        maxRetries: 10,
-        requestTimeout: 6000,
+      useFactory: () => ({
+        node: 'http://localhost:9200',
+        auth: {
+          username: 'elastic',
+          password: 'bdl6t5q-fNscEgYVe5rl',
+        },
       }),
-      inject: [ConfigService],
     }),
   ],
-  providers: [SearchService],
-  exports: [ElasticsearchModule],
+  controllers: [ProductController],
+  providers: [ProductService],
 })
-export class SearchModule implements OnModuleInit {
-  constructor(private readonly searchService: SearchService) {}
-
-  public async onModuleInit() {
-    await this.searchService.createIndex();
-  }
-}
+export class SearchModule {}
